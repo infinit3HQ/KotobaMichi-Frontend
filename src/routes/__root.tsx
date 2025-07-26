@@ -7,6 +7,8 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import appCss from '../index.css?url'
+import { ThemeProvider } from '@/components/atoms/theme-provider'
+import { GlobalThemeToggle } from '@/components/atoms/global-theme-toggle'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -30,14 +32,24 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <Outlet />
+        
+        {/* Global Theme Toggle - appears on every page */}
+        <GlobalThemeToggle position="bottom-right" />
+      </ThemeProvider>
     </RootDocument>
   )
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
