@@ -1,13 +1,13 @@
 # Project: JLPT N5 Vocabulary & Quiz App - Frontend Tasks
 
 ## 1. Core Setup & Configuration
-- [ ] Initialize React project using Vite.
-- [ ] Install and configure Tailwind CSS.
-- [ ] Install and set up `shadcn/ui` CLI.
-- [ ] Add core `shadcn/ui` components: `Button`, `Card`, `Input`, `Dialog`, `Form`, `Sonner`.
-- [ ] Set up `react-router-dom` for client-side routing.
-- [ ] Install `axios` for API requests and `zod` for form validation.
-- [ ] Install `@tanstack/react-query` for server state management.
+- [x] Initialize React project using Vite.
+- [x] Install and configure Tailwind CSS.
+- [x] Install and set up `shadcn/ui` CLI.
+- [x] Add core `shadcn/ui` components.
+- [] Set up `react-router-dom` for client-side routing.
+- [] Install `axios` for API requests and `zod` for form validation.
+- [] Install `@tanstack/react-query` for server state management.
 
 ---
 
