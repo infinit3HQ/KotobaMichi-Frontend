@@ -25,3 +25,8 @@ dist-ssr
 
 # Node
 node_modules/
+
+# Tanstack
+.nitro
+.tanstack
+.output

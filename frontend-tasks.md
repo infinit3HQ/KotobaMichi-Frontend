@@ -5,7 +5,7 @@
 - [x] Install and configure Tailwind CSS.
 - [x] Install and set up `shadcn/ui` CLI.
 - [x] Add core `shadcn/ui` components.
-- [] Set up `react-router-dom` for client-side routing.
+- [x] Set up `@tanstack/react-router` for client-side routing.
 - [] Install `axios` for API requests and `zod` for form validation.
 - [] Install `@tanstack/react-query` for server state management.
 
