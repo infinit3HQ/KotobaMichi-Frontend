@@ -6,8 +6,8 @@
 - [x] Install and set up `shadcn/ui` CLI.
 - [x] Add core `shadcn/ui` components.
 - [x] Set up `@tanstack/react-router` for client-side routing.
-- [] Install `axios` for API requests and `zod` for form validation.
-- [] Install `@tanstack/react-query` for server state management.
+- [x] Install `axios` for API requests and `zod` for form validation.
+- [x] Install `@tanstack/react-query` for server state management.
 
 ---
 
