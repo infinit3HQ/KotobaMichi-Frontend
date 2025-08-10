@@ -28,11 +28,11 @@
 ---
 
 ## 3. Authentication
-- [ ] **State:** Create an auth context or Zustand store to manage user state and JWT token.
-- [ ] **Page:** Build `LoginPage` with a form (`react-hook-form`, `zod`, `shadcn/ui Form`) to call `POST /auth/login`.
-- [ ] **Page:** Build `RegisterPage` with a form to call `POST /auth/register`.
-- [ ] **Logic:** On successful login, store JWT in local storage and update auth state.
-- [ ] **Logic:** Set up an `axios` interceptor to attach the JWT to all outgoing requests.
+- [x] **State:** Create an auth context or Zustand store to manage user state and JWT token.
+- [x] **Page:** Build `LoginPage` with a form (`react-hook-form`, `zod`, `shadcn/ui Form`) to call `POST /auth/login`.
+- [x] **Page:** Build `RegisterPage` with a form to call `POST /auth/register`.
+- [x] **Logic:** On successful login, store JWT in local storage and update auth state.
+- [x] **Logic:** Set up an `axios` interceptor to attach the JWT to all outgoing requests.
 
 ---
 
