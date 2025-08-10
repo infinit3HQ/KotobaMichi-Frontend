@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export function Navbar() {
-  const router = useRouter()
-  const { user, token, logout } = useAuth()
+  const router = useRouter();
+  const { user, token, logout } = useAuth();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
@@ -21,6 +21,9 @@ export function Navbar() {
             <Link to="/quizzes">Quizzes</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
+            <Link to="/words">Words</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
             <Link to="/profile">Profile</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
@@ -28,15 +31,17 @@ export function Navbar() {
           </Button>
           {token && user ? (
             <>
-              <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {user.email}
+              </span>
               <Button
                 size="sm"
                 className="ml-2"
                 variant="destructive"
                 onClick={() => {
-                  logout()
-                  toast.success('Logged out')
-                  router.navigate({ to: '/' })
+                  logout();
+                  toast.success("Logged out");
+                  router.navigate({ to: "/" });
                 }}
               >
                 Logout
