@@ -12,8 +12,8 @@
 ---
 
 ## 2. Layout & Routing
-- [ ] **Component:** Create a main `Layout` component with a persistent `Navbar` and a `Footer`.
-- [ ] **Routing:** Configure routes in `App.tsx`:
+- [x] **Component:** Create a main `Layout` component with a persistent `Navbar` and a `Footer`.
+- [x] **Routing:** Configure routes using TanStack Router:
   - `/`: Home/Flashcards view
   - `/login`: Login Page
   - `/register`: Registration Page
@@ -23,7 +23,7 @@
   - `/results/:attemptId`: Quiz Results Page
   - `/dashboard`: Admin Dashboard (Protected Route)
   - `/profile`: User Profile Page (Protected Route)
-- [ ] **Component:** Create `ProtectedRoute` component to handle auth-only and admin-only routes.
+- [x] **Component:** Create `ProtectedRoute` component to handle auth-only and admin-only routes.
 
 ---
 
