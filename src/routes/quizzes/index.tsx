@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { Badge } from "@/components/atoms/badge";
 import { Skeleton } from "@/components/atoms/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/atoms/button";
 
 export const Route = createFileRoute("/quizzes/")({
   component: QuizListPage,
@@ -26,7 +27,19 @@ function QuizListPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Quizzes</h2>
+        {token ? (
+          <Button asChild>
+            <Link to="/quizzes/create">Create Quiz</Link>
+          </Button>
+        ) : (
+          <Button asChild variant="outline">
+            <Link to="/auth/login">Login to create</Link>
+          </Button>
+        )}
+      </div>
+  <Card>
         <CardHeader>
           <CardTitle>Public Quizzes</CardTitle>
         </CardHeader>

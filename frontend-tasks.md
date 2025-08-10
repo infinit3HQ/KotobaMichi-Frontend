@@ -37,38 +37,38 @@
 ---
 
 ## 4. Core Features & Pages
-- [ ] **Flashcards Page (`/`)**
+- [x] **Flashcards Page (`/`)**
   - **Component:** `Flashcard` component with flip animation (CSS transform).
   - **Component:** `WordList` component to fetch data from `GET /words` using `react-query`.
   - **UI:** Implement search and filter functionality.
   - **UI:** Display words in a grid layout.
 
-- [ ] **Quiz Pages (`/quizzes/*`)**
+- [x] **Quiz Pages (`/quizzes/*`)**
   - **Page:** `QuizListPage` to display two lists: general quizzes (`GET /quizzes`) and user's custom quizzes (`GET /quizzes/my-quizzes`).
   - **Page:** `QuizCreationPage` to allow users to select words from the master list and create a custom quiz via `POST /quizzes`.
   - **Page:** `QuizTakingPage` to fetch quiz data (`GET /quizzes/:id`) and present questions one by one.
   - **Page:** `QuizResultsPage` to display score and correct/incorrect answers after submitting to `POST /quizzes/:id/submit`.
 
-- [ ] **Profile Page (`/profile`)**
+- [x] **Profile Page (`/profile`)**
   - **UI:** Display user information (`GET /users/me`).
   - **UI:** Display a list of past quiz attempts and scores (`GET /users/me/attempts`).
 
 ---
 
 ## 5. Admin Dashboard (`/dashboard`)
-- [ ] **Route:** Protect this route for `ADMIN` roles only.
-- [ ] **Vocabulary Management Tab**
+- [x] **Route:** Protect this route for `ADMIN` roles only.
+- [x] **Vocabulary Management Tab**
   - **UI:** Table to display all words from `GET /words`.
   - **Component:** A `Dialog`/`Form` to add a new word (`POST /words`).
   - **Functionality:** Buttons for editing (`PATCH /words/:id`) and deleting (`DELETE /words/:id`) in each table row.
-- [ ] **Quiz Management Tab**
+- [x] **Quiz Management Tab**
   - **UI:** Table to display all general (public) quizzes.
-  - **Component:** A `Dialog`/`Form` to create/edit general quizzes.
+  - **Component:** A `Dialog`/`Form` to create general quizzes (edit not available in API yet).
 
 ---
 
-## 6. Finalization & Deployment
-- [ ] Ensure all API calls handle loading and error states gracefully.
-- [ ] Implement responsive design for all pages using Tailwind's breakpoints.
+-## 6. Finalization & Deployment
+- [x] Ensure all API calls handle loading and error states gracefully.
+- [x] Implement responsive design for all pages using Tailwind's breakpoints.
 - [ ] Perform component testing with Vitest and React Testing Library.
 - [ ] Prepare the application for deployment (e.g., create a Vercel/Netlify configuration).

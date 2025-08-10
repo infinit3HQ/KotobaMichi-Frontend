@@ -23,12 +23,16 @@ export function Navbar() {
           <Button asChild variant="ghost" size="sm">
             <Link to="/words">Words</Link>
           </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/profile">Profile</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/dashboard">Dashboard</Link>
-          </Button>
+          {token && user && (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/profile">Profile</Link>
+            </Button>
+          )}
+          {user?.role === "ADMIN" && (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          )}
           {token && user ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">

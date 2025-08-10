@@ -9,6 +9,7 @@ import { Input } from "@/components/atoms/input";
 import { Volume2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProtectedRoute } from "@/components/organisms/protected-route";
+import { useResultsStore } from "@/stores/results";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/quizzes/$id")({
@@ -31,7 +32,9 @@ function QuizTakingPage() {
     mutationFn: async (answersPayload: SubmitAnswer[]) => (await api.post<SubmitQuizResponse>(`/quizzes/${id}/submit`, { answers: answersPayload })).data,
     onSuccess: (res) => {
       toast.success("Submitted")
-      router.navigate({ to: "/results/$attemptId", params: { attemptId: res.attemptId } })
+  // Persist results locally so results page can render detailed breakdown
+  useResultsStore.getState().save(res)
+  router.navigate({ to: "/results/$attemptId", params: { attemptId: res.attemptId } })
     },
     onError: () => toast.error("Submission failed"),
   })
