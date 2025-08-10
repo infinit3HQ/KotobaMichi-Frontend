@@ -9,3 +9,96 @@ export type AuthResponse = {
   access_token: string
   user: ApiUser
 }
+
+// Pagination
+export type Pagination = {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+// Words
+export type Word = {
+  id: string
+  hiragana: string
+  katakana: string
+  kanji: string | null
+  pronunciation: string
+  meaning: string
+}
+
+export type WordsListResponse = {
+  words: Word[]
+  pagination: Pagination
+}
+
+// Quizzes
+export type QuizSummary = {
+  id: string
+  title: string
+  description?: string | null
+  isPublic: boolean
+  createdById: string
+  creator: ApiUser
+  _count: { quizWords?: number; attempts?: number }
+}
+
+export type QuizWord = {
+  id: string
+  wordId: string
+  word: Word
+}
+
+export type QuizDetail = {
+  id: string
+  title: string
+  description?: string | null
+  isPublic: boolean
+  createdById: string
+  creator: ApiUser
+  quizWords: QuizWord[]
+  _count: { attempts?: number }
+}
+
+export type CreateQuizPayload = {
+  title: string
+  description?: string
+  isPublic: boolean
+  wordIds: string[]
+}
+
+export type DeleteResponse = { message: string }
+
+// Submissions
+export type SubmitAnswer = { wordId: string; answer: string }
+
+export type SubmitResultItem = {
+  wordId: string
+  userAnswer: string
+  correctAnswers: string[]
+  isCorrect: boolean
+  word: Omit<Word, 'id'>
+}
+
+export type SubmitQuizResponse = {
+  attemptId: string
+  score: number
+  totalQuestions: number
+  results: SubmitResultItem[]
+}
+
+// Users
+export type UserProfile = ApiUser
+
+export type AttemptSummary = {
+  id: string
+  quizId: string
+  score: number
+  completedAt: string
+}
+
+export type UserAttemptsResponse = {
+  attempts: AttemptSummary[]
+  pagination: Pagination
+}
