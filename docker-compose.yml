@@ -8,6 +8,8 @@ services:
       - "5173:80"
     environment:
       - NODE_ENV=production
+      - VITE_API_URL=http://localhost:3001/v1/
+      - VITE_APP_ENV=development
     # If you need to pass Vite env vars at build time, add them under build.args and use ARG in Dockerfile.
     # build:
     #   args:

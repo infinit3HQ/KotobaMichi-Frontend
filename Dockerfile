@@ -26,6 +26,8 @@ FROM nginx:1.27-alpine AS runner
 # Remove default config and add our SPA-friendly one
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -37,4 +39,4 @@ RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -fsS http://127.0.0.1/ || exit 1
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]
