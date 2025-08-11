@@ -20,23 +20,25 @@ ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_APP_ENV=${VITE_APP_ENV}
 RUN pnpm build
 
-# 2) Runtime stage: serve static files with Nginx
-FROM nginx:1.27-alpine AS runner
+# 2) Runtime stage: run SSR server with Node (Nitro output)
+FROM node:20-alpine AS runner
 
-# Remove default config and add our SPA-friendly one
-RUN rm -f /etc/nginx/conf.d/default.conf
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+ENV NODE_ENV=production
+WORKDIR /app
 
-# Copy built assets
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy Nitro/TanStack Start output (client assets live in .output/public, server in .output/server)
+COPY --from=builder /app/.output /app/.output
 
-# Install curl for healthcheck and troubleshooting
+# Install only server runtime deps defined by Nitro in .output/server/package.json
+WORKDIR /app/.output/server
+RUN npm i --omit=dev --no-audit --no-fund
+
+# Optional tools for healthcheck/troubleshooting
 RUN apk add --no-cache curl
 
-# Healthcheck for Nginx
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -fsS http://127.0.0.1/ || exit 1
+# Healthcheck for Node server (default listens on PORT or 3000)
+ENV PORT=3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD curl -fsS http://127.0.0.1:${PORT}/ || exit 1
 
-EXPOSE 80
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 3000
+CMD ["node", "index.mjs"]
