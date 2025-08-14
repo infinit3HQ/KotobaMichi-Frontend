@@ -37,8 +37,8 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   // set token getter for axios once
-  setAuthTokenGetter(getAuthToken)
-  const [queryClient] = useState(() => new QueryClient())
+  setAuthTokenGetter(getAuthToken);
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <RootDocument>
       <ThemeProvider
@@ -66,6 +66,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     <html suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* Load runtime environment variables before app scripts */}
+        <script src="/env.js"></script>
       </head>
       <body>
         {children}

@@ -6,7 +6,9 @@ declare global {
   interface Window { __ENV__?: Record<string, string | undefined> }
 }
 const runtimeApiUrl = typeof window !== 'undefined' ? window.__ENV__?.VITE_API_URL : undefined
-const baseURL = runtimeApiUrl ?? import.meta.env.VITE_API_URL ?? 'http://localhost:3001/v1/'
+// On the server (SSR), prefer process.env at runtime to support Docker env injection
+const serverApiUrl = typeof window === 'undefined' ? process.env?.VITE_API_URL : undefined
+const baseURL = runtimeApiUrl ?? serverApiUrl ?? import.meta.env.VITE_API_URL ?? 'http://localhost:3001/v1/'
 
 export const api = axios.create({ baseURL })
 
