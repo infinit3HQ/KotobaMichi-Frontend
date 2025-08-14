@@ -15,9 +15,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 # Allow passing Vite env vars at build time (e.g., --build-arg VITE_API_URL=https://api.example.com)
 ARG VITE_API_URL
-ARG VITE_APP_ENV
 ENV VITE_API_URL=${VITE_API_URL}
-ENV VITE_APP_ENV=${VITE_APP_ENV}
 RUN pnpm build
 
 # 2) Runtime stage: run SSR server with Node (Nitro output)
@@ -28,6 +26,8 @@ WORKDIR /app
 
 # Copy Nitro/TanStack Start output (client assets live in .output/public, server in .output/server)
 COPY --from=builder /app/.output /app/.output
+COPY docker/entrypoint-node.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Install only server runtime deps defined by Nitro in .output/server/package.json
 WORKDIR /app/.output/server
@@ -41,4 +41,4 @@ ENV PORT=3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD curl -fsS http://127.0.0.1:${PORT}/ || exit 1
 
 EXPOSE 3000
-CMD ["node", "index.mjs"]
+CMD ["/app/entrypoint.sh"]
