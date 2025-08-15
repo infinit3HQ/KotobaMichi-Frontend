@@ -8,7 +8,7 @@ declare global {
 const runtimeApiUrl = typeof window !== 'undefined' ? window.__ENV__?.VITE_API_URL : undefined
 // On the server (SSR), prefer process.env at runtime to support Docker env injection
 const serverApiUrl = typeof window === 'undefined' ? process.env?.VITE_API_URL : undefined
-const baseURL = runtimeApiUrl ?? serverApiUrl ?? import.meta.env.VITE_API_URL ?? 'http://localhost:3001/v1/'
+const baseURL = runtimeApiUrl ?? serverApiUrl ?? import.meta.env.VITE_API_URL ?? 'http://localhost:3000/v1/'
 
 export const api = axios.create({ baseURL })
 
@@ -41,4 +41,22 @@ export function getApiError(err: unknown): ApiError {
     return { status, message }
   }
   return { message: 'Unknown error' }
+}
+
+// CSV Import helpers
+export async function uploadCsv(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await api.post('/words/import/upload', form)
+  return res.data as import('@/types/api').CsvImportResponse
+}
+
+export async function fetchImportStats() {
+  const res = await api.get('/words/import/stats')
+  return res.data as import('@/types/api').ImportStats
+}
+
+export async function clearAllWords() {
+  const res = await api.delete('/words/import/clear-all')
+  return res.data as import('@/types/api').ClearAllWordsResponse
 }

@@ -9,10 +9,11 @@ import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { Checkbox } from '@/components/atoms/checkbox'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api, getApiError } from '@/lib/api'
+import { api, getApiError, uploadCsv, fetchImportStats, clearAllWords } from '@/lib/api'
 import type { WordsListResponse, Word, QuizSummary, QuizDetail, CreateQuizPayload } from '@/types/api'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { Progress } from '@/components/atoms/progress'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
@@ -28,12 +29,16 @@ function DashboardPage() {
           <TabsList>
             <TabsTrigger value="words">Vocabulary</TabsTrigger>
             <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+            <TabsTrigger value="import">CSV Import</TabsTrigger>
           </TabsList>
           <TabsContent value="words" className="space-y-4">
             <WordsManager />
           </TabsContent>
           <TabsContent value="quizzes" className="space-y-4">
             <QuizzesManager />
+          </TabsContent>
+          <TabsContent value="import" className="space-y-4">
+            <CsvImportManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -196,6 +201,195 @@ function EditWordDialog({ word, onSubmit, submitting }: { word: Word; onSubmit: 
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function CsvImportManager() {
+  const qc = useQueryClient()
+  const [file, setFile] = useState<File | null>(null)
+  const [progress, setProgress] = useState(0)
+  const [dragActive, setDragActive] = useState(false)
+  const [autoRefreshActive, setAutoRefreshActive] = useState(false)
+
+  const { data: stats, refetch: refetchStats, isFetching: statsLoading } = useQuery({
+    queryKey: ['admin', 'import', 'stats'],
+    queryFn: fetchImportStats,
+  })
+
+  const uploadMutation = useMutation({
+    mutationFn: async (f: File) => {
+      setProgress(10)
+      const res = await uploadCsv(f)
+      setProgress(100)
+      return res
+    },
+    onSuccess: (res) => {
+      toast.success(`Imported ${res.imported}/${res.total}. Duplicates: ${res.duplicates}`)
+      setFile(null)
+      refetchStats()
+      qc.invalidateQueries({ queryKey: ['admin', 'words'] })
+  // Trigger periodic auto-refresh for a short window after successful upload
+  setAutoRefreshActive(true)
+    },
+    onError: (e) => toast.error(getApiError(e).message ?? 'Upload failed'),
+    onSettled: () => setProgress(0),
+  })
+
+  const clearMutation = useMutation({
+    mutationFn: clearAllWords,
+    onSuccess: (res) => {
+      toast.success(`Cleared ${res.deletedCount} words`)
+      refetchStats()
+      qc.invalidateQueries({ queryKey: ['admin', 'words'] })
+    },
+    onError: (e) => toast.error(getApiError(e).message ?? 'Clear failed'),
+  })
+
+  const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (f) setFile(f)
+  }
+
+  const onUpload = () => {
+    if (!file) return
+    uploadMutation.mutate(file)
+  }
+
+  // Drag-and-drop handlers
+  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!dragActive) setDragActive(true)
+  }
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (dragActive) setDragActive(false)
+  }
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    const f = e.dataTransfer.files?.[0]
+    if (f) setFile(f)
+  }
+
+  // Periodic auto-refresh of stats for 30s after an upload, every 5s
+  useEffect(() => {
+    if (!autoRefreshActive) return
+    const startedAt = Date.now()
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startedAt
+      if (elapsed > 30_000) {
+        clearInterval(interval)
+        setAutoRefreshActive(false)
+        return
+      }
+      refetchStats()
+    }, 5_000)
+    return () => clearInterval(interval)
+  }, [autoRefreshActive, refetchStats])
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>CSV Import</CardTitle>
+        <div className="flex gap-2">
+          <Button variant="destructive" size="sm" onClick={() => { if (confirm('Clear ALL words?')) clearMutation.mutate() }} disabled={clearMutation.isPending}>
+            {clearMutation.isPending ? 'Clearing…' : 'Clear All Words'}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-2">
+          <Label>Upload CSV</Label>
+          <Input type="file" accept=".csv,text/csv" onChange={onSelect} />
+          <div
+            className={
+              `mt-2 flex flex-col items-center justify-center rounded-md border border-dashed p-6 text-center transition-colors ${dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/30'}`
+            }
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            role="button"
+            aria-label="Drag and drop CSV file here"
+            tabIndex={0}
+          >
+            <span className="font-medium">Drag & drop CSV file here</span>
+            <span className="text-sm text-muted-foreground">or use the file picker above</span>
+            {file && (
+              <span className="mt-2 text-xs text-muted-foreground">Selected: {file.name}</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 pt-2">
+            <Button onClick={onUpload} disabled={!file || uploadMutation.isPending}>{uploadMutation.isPending ? 'Uploading…' : 'Upload'}</Button>
+            <a className="text-sm underline text-primary" href="/csv-example.csv" download>
+              Download CSV example
+            </a>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            CSV format: columns Kanji (optional), Hiragana (required), English (required), PronunciationURL (required). UTF-8 without BOM recommended.
+          </p>
+
+          {uploadMutation.isPending && (
+            <div className="pt-2">
+              <Progress value={progress} />
+            </div>
+          )}
+          {uploadMutation.data && (
+            <div className="text-sm text-muted-foreground">
+              Imported: {uploadMutation.data.imported}/{uploadMutation.data.total} — Duplicates: {uploadMutation.data.duplicates} — Errors: {uploadMutation.data.errors}
+            </div>
+          )}
+
+          {/* Error details table */}
+          {uploadMutation.data && uploadMutation.data.errors > 0 && (
+            <div className="overflow-x-auto">
+              <table className="mt-2 w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left">
+                    <th className="p-2 w-24">Row</th>
+                    <th className="p-2">Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {uploadMutation.data.errorDetails?.map((err, idx) => {
+                    const row = typeof err === 'string' ? undefined : err.row
+                    const msg = typeof err === 'string' ? err : err.message
+                    return (
+                      <tr key={idx} className="border-b">
+                        <td className="p-2">{row ?? '-'}</td>
+                        <td className="p-2 whitespace-pre-wrap">{msg}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-2">
+          <Label>Import Stats</Label>
+          {statsLoading ? (
+            <p className="text-muted-foreground">Loading…</p>
+          ) : stats ? (
+            <ul className="text-sm">
+              <li>Total Words: <span className="font-medium">{stats.totalWords}</span></li>
+              <li>Recent Imports: <span className="font-medium">{stats.recentImports}</span></li>
+              <li>Last Import Time: <span className="font-medium">{new Date(stats.lastImportTime).toLocaleString()}</span></li>
+            </ul>
+          ) : (
+            <p className="text-muted-foreground">No stats available.</p>
+          )}
+          {autoRefreshActive && (
+            <p className="text-xs text-muted-foreground">Auto-refreshing stats for 30 seconds…</p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
