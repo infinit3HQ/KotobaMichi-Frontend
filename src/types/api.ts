@@ -70,6 +70,23 @@ export type CreateQuizPayload = {
 
 export type DeleteResponse = { message: string }
 
+// CSV Import
+export type CsvImportResponse = {
+  total: number
+  imported: number
+  duplicates: number
+  errors: number
+  errorDetails: Array<{ row?: number; message: string } | string>
+}
+
+export type ImportStats = {
+  totalWords: number
+  recentImports: number
+  lastImportTime: string
+}
+
+export type ClearAllWordsResponse = { deletedCount: number }
+
 // Submissions
 export type SubmitAnswer = { wordId: string; answer: string }
 
