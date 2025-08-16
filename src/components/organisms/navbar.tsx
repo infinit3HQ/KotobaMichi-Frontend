@@ -1,5 +1,7 @@
 // src/components/organisms/navbar.tsx
-import { Link, useRouter } from "@tanstack/react-router";
+"use client"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -10,27 +12,27 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <Link to="/" className="font-bold text-lg">
+  <Link href="/" className="font-bold text-lg">
           KotobaMichi
         </Link>
         <nav className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/">Home</Link>
+            <Link href="/">Home</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/quizzes">Quizzes</Link>
+            <Link href="/quizzes">Quizzes</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/words">Words</Link>
+            <Link href="/words">Words</Link>
           </Button>
           {token && user && (
             <Button asChild variant="ghost" size="sm">
-              <Link to="/profile">Profile</Link>
+              <Link href="/profile">Profile</Link>
             </Button>
           )}
           {user?.role === "ADMIN" && (
             <Button asChild variant="ghost" size="sm">
-              <Link to="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">Dashboard</Link>
             </Button>
           )}
           {token && user ? (
@@ -45,7 +47,7 @@ export function Navbar() {
                 onClick={() => {
                   logout();
                   toast.success("Logged out");
-                  router.navigate({ to: "/" });
+          router.push("/");
                 }}
               >
                 Logout
@@ -53,7 +55,7 @@ export function Navbar() {
             </>
           ) : (
             <Button asChild size="sm" className="ml-2">
-              <Link to="/auth/login">Login</Link>
+        <Link href="/auth/login">Login</Link>
             </Button>
           )}
         </nav>

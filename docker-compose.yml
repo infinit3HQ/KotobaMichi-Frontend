@@ -3,11 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: "http://localhost:3001/v1/"
     ports:
-      - "5173:3000"
+      - "3000:3000"
     environment:
-      - VITE_API_URL=http://localhost:3001/v1/
-  # NODE_ENV and PORT are already set in the image; no need to repeat them here
-  # Vite env vars should be passed at build time via build.args. Runtime env can be injected via /public/env.js if needed.
+      NEXT_PUBLIC_API_URL: "http://localhost:3001/v1/"
+# NODE_ENV and PORT are set in the image; override as needed.

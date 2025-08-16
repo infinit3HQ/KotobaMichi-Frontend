@@ -1,10 +1,16 @@
-// src/components/organisms/not-found.tsx
-import { Link } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../atoms/card'
-import { Button } from '../atoms/button'
-import { Separator } from '../atoms/separator'
-import { Badge } from '../atoms/badge'
-import { Home, ArrowLeft, HelpCircle } from 'lucide-react'
+"use client";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../atoms/card";
+import { Button } from "../atoms/button";
+import { Separator } from "../atoms/separator";
+import { Badge } from "../atoms/badge";
+import { Home, ArrowLeft, HelpCircle } from "lucide-react";
 
 export function NotFound() {
   return (
@@ -21,13 +27,14 @@ export function NotFound() {
             Oops! Page Not Found
           </CardTitle>
           <CardDescription className="text-muted-foreground leading-relaxed">
-            The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+            The page you&apos;re looking for doesn&apos;t exist. It might have been moved,
+            deleted, or you entered the wrong URL.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
           <Button asChild className="w-full" size="lg">
-            <Link to="/">
+            <Link href="/">
               <Home className="mr-2 h-4 w-4" />
               Go Home
             </Link>
@@ -54,5 +61,5 @@ export function NotFound() {
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}
