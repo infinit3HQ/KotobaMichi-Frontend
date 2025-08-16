@@ -1,6 +1,7 @@
 // src/components/organisms/protected-route.tsx
-import { Navigate } from "@tanstack/react-router";
-import type { PropsWithChildren } from "react";
+"use client"
+import { useEffect, type PropsWithChildren } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 
 export function ProtectedRoute({
@@ -8,14 +9,17 @@ export function ProtectedRoute({
   adminOnly = false,
 }: PropsWithChildren<{ adminOnly?: boolean }>) {
   const { user, token } = useAuth();
+  const router = useRouter();
 
-  if (!token || !user) {
-    return <Navigate to="/auth/login" />;
-  }
-
-  if (adminOnly && user.role !== "ADMIN") {
-    return <Navigate to="/" />;
-  }
+  useEffect(() => {
+    if (!token || !user) {
+      router.push("/auth/login");
+      return;
+    }
+    if (adminOnly && user.role !== "ADMIN") {
+      router.push("/");
+    }
+  }, [token, user, adminOnly, router]);
 
   return <>{children}</>;
 }

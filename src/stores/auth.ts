@@ -24,7 +24,8 @@ type PersistedAuthState = Pick<AuthState, 'user' | 'token'>
 export const useAuthStore = create<AuthState>()(
   persist<AuthState, [], [], PersistedAuthState>(creator, {
     name: 'auth',
-    storage: createJSONStorage<PersistedAuthState>(() => localStorage),
+  storage: createJSONStorage<PersistedAuthState>(() => (typeof window !== 'undefined' ? localStorage : (undefined as unknown as Storage))),
+  skipHydration: true,
     partialize: (state) => ({ user: state.user, token: state.token }),
   }),
 )
