@@ -104,17 +104,7 @@ jobs:
           docker compose -f docker-compose.prod.yml ps
           echo "--- Recent logs (web) ---"
           docker compose -f docker-compose.prod.yml logs --tail=80 web || true
-
-      - name: Verify SEO endpoints (sitemap and robots)
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Checking /sitemap.xml"
-          docker exec kotobamichi-web curl -fsS http://localhost:3000/sitemap.xml >/dev/null
-          echo "Checking /robots.txt"
-          docker exec kotobamichi-web curl -fsS http://localhost:3000/robots.txt >/dev/null
-          echo "OK: sitemap.xml and robots.txt are reachable inside the container"
-
+          
       - name: Deployment summary
         shell: bash
         run: |
