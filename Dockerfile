@@ -17,6 +17,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # Install curl for healthcheck used in docker-compose.prod.yml
 RUN apk add --no-cache curl
