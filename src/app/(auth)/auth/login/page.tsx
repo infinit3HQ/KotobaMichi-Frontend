@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { setUser } = useAuth();
   const schema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
@@ -41,11 +41,10 @@ export default function LoginPage() {
   const onSubmit = async (values: FormVals) => {
     try {
       const res = await api.post("/auth/login", values);
-      const { access_token, user } = res.data as {
-        access_token: string;
+      const { user } = res.data as {
         user: { id: string; email: string; role: "USER" | "ADMIN" };
       };
-      login({ token: access_token, user });
+      setUser(user);
       toast.success("Logged in");
       router.push("/");
     } catch (e) {

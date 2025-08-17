@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/atoms/button";
 
 export default function QuizListPage() {
-  const { token } = useAuth();
+  const { user } = useAuth();
   const {
     data: publicQuizzes,
     isLoading: loadingPublic,
@@ -28,14 +28,14 @@ export default function QuizListPage() {
     queryKey: ["quizzes", "mine"],
     queryFn: async () =>
       (await api.get<QuizSummary[]>("/quizzes/my-quizzes")).data,
-    enabled: !!token,
+    enabled: !!user,
   });
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Quizzes</h2>
-        {token ? (
+        {user ? (
           <Button asChild>
             <Link href="/quizzes/create">Create Quiz</Link>
           </Button>
@@ -97,7 +97,7 @@ export default function QuizListPage() {
           <CardTitle>My Quizzes</CardTitle>
         </CardHeader>
         <CardContent>
-          {!token ? (
+          {!user ? (
             <p className="text-muted-foreground">
               Login to see your custom quizzes.
             </p>

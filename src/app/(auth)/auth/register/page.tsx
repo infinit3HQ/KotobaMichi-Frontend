@@ -1,4 +1,3 @@
-// src/routes/auth/register.tsx
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,7 +27,7 @@ import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { setUser } = useAuth();
   const schema = z
     .object({
       email: z.string().email(),
@@ -51,11 +50,10 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
       });
-      const { access_token, user } = res.data as {
-        access_token: string;
+      const { user } = res.data as {
         user: { id: string; email: string; role: "USER" | "ADMIN" };
       };
-      login({ token: access_token, user });
+      setUser(user);
       toast.success("Account created");
       router.push("/");
     } catch (e) {

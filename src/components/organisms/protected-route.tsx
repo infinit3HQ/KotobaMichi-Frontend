@@ -1,25 +1,27 @@
-// src/components/organisms/protected-route.tsx
-"use client"
+"use client";
 import { useEffect, type PropsWithChildren } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/stores/auth";
 
 export function ProtectedRoute({
   children,
   adminOnly = false,
 }: PropsWithChildren<{ adminOnly?: boolean }>) {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
+  const hydrated = useAuthStore((s) => s.hydrated);
   const router = useRouter();
 
   useEffect(() => {
-    if (!token || !user) {
+    if (!hydrated) return;
+    if (!user) {
       router.push("/auth/login");
       return;
     }
     if (adminOnly && user.role !== "ADMIN") {
       router.push("/");
     }
-  }, [token, user, adminOnly, router]);
+  }, [hydrated, user, adminOnly, router]);
 
   return <>{children}</>;
 }
