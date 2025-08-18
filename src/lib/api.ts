@@ -77,7 +77,8 @@ api.interceptors.response.use(
         await refreshSession();
         return api.request(original);
       } catch {
-        if (authHandlers.onUnauthenticated) authHandlers.onUnauthenticated();
+        // refreshSession() already calls authHandlers.onUnauthenticated() on failure.
+        // Do not call it again here to avoid double-firing logout/toast flows.
       }
     }
     return Promise.reject(error);

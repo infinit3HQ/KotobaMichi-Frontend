@@ -10,10 +10,11 @@ export function ProtectedRoute({
 }: PropsWithChildren<{ adminOnly?: boolean }>) {
   const { user } = useAuth();
   const hydrated = useAuthStore((s) => s.hydrated);
+  const authChecked = useAuthStore((s) => s.authChecked);
   const router = useRouter();
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !authChecked) return;
     if (!user) {
       router.push("/auth/login");
       return;
@@ -21,7 +22,7 @@ export function ProtectedRoute({
     if (adminOnly && user.role !== "ADMIN") {
       router.push("/");
     }
-  }, [hydrated, user, adminOnly, router]);
+  }, [hydrated, authChecked, user, adminOnly, router]);
 
   return <>{children}</>;
 }

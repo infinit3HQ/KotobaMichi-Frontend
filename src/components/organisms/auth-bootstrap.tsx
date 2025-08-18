@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 
 export function AuthBootstrap() {
   const { user, setUser } = useAuth()
+  const { setAuthChecked } = useAuth()
   useEffect(() => {
     let mounted = true
     if (user) return
@@ -26,11 +27,15 @@ export function AuthBootstrap() {
         }
       } catch {
         // not authenticated; ignore
+      } finally {
+        try {
+          setAuthChecked()
+        } catch {}
       }
     })()
     return () => {
       mounted = false
     }
-  }, [user, setUser])
+  }, [user, setUser, setAuthChecked])
   return null
 }
