@@ -16,13 +16,21 @@ export function ProtectedRoute({
   useEffect(() => {
     if (!hydrated || !authChecked) return;
     if (!user) {
-      router.push("/auth/login");
+      router.replace("/auth/login");
       return;
     }
     if (adminOnly && user.role !== "ADMIN") {
-      router.push("/");
+      router.replace("/");
     }
   }, [hydrated, authChecked, user, adminOnly, router]);
 
+  if (
+    !hydrated ||
+    !authChecked ||
+    !user ||
+    (adminOnly && user.role !== "ADMIN")
+  ) {
+    return null;
+  }
   return <>{children}</>;
 }

@@ -14,9 +14,7 @@ export type AuthState = {
   setAuthChecked: () => void;
 };
 
-let _setStateRef: (partial: Partial<AuthState> | ((s: AuthState) => Partial<AuthState>)) => void;
 const creator: StateCreator<AuthState> = (set) => {
-  _setStateRef = set;
   return ({
   user: null,
   hydrated: false,
@@ -39,10 +37,10 @@ export const useAuthStore = create<AuthState>()(
     ),
       // allow automatic rehydration so persisted `user` is loaded
       partialize: (state) => ({ user: state.user }),
-      onRehydrateStorage: () => (state) => {
-        // mark hydrated after rehydration using the store setter so subscribers are notified
+      onRehydrateStorage: () => () => {
+        // mark hydrated after rehydration and notify subscribers
         try {
-          if (state && _setStateRef) _setStateRef({ hydrated: true });
+          useAuthStore.setState({ hydrated: true });
         } catch {}
       },
   })
