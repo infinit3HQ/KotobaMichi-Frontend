@@ -6,12 +6,17 @@ import { GlobalThemeToggle } from "@/components/atoms/global-theme-toggle";
 import { Layout } from "@/components/organisms/layout";
 import { Toaster } from "@/components/atoms/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { setAuthTokenGetter } from "@/lib/api";
-import { getAuthToken } from "@/stores/auth";
+import { setAuthHandlers } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth";
 
 export default function Providers({ children }: { children: ReactNode }) {
-  // set token getter for axios once
-  setAuthTokenGetter(getAuthToken);
+  // register auth handlers once on mount
+  const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
+  setAuthHandlers({
+    onRefreshSuccess: (user) => setUser(user),
+    onUnauthenticated: () => logout(),
+  });
   const [queryClient] = useState(() => new QueryClient());
 
   return (

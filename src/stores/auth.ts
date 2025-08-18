@@ -1,33 +1,47 @@
 // src/stores/auth.ts
-import { create, type StateCreator } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { create, type StateCreator } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-export type Role = 'USER' | 'ADMIN'
-export type AuthUser = { id: string; email: string; role: Role }
+export type Role = "USER" | "ADMIN";
+export type AuthUser = { id: string; email: string; role: Role };
 
 export type AuthState = {
-  user: AuthUser | null
-  token: string | null
-  login: (payload: { user: AuthUser; token: string }) => void
-  logout: () => void
-}
+  user: AuthUser | null;
+  hydrated: boolean;
+  authChecked: boolean;
+  setUser: (user: AuthUser | null) => void;
+  logout: () => void;
+  setAuthChecked: () => void;
+};
 
-const creator: StateCreator<AuthState> = (set) => ({
+const creator: StateCreator<AuthState> = (set) => {
+  return ({
   user: null,
-  token: null,
-  login: ({ user, token }: { user: AuthUser; token: string }) => set({ user, token }),
-  logout: () => set({ user: null, token: null }),
-})
+  hydrated: false,
+  authChecked: false,
+    setUser: (user) => set({ user, hydrated: true }),
+    logout: () => set({ user: null, authChecked: false, hydrated: true }),
+    setAuthChecked: () => set({ authChecked: true }),
+  });
+};
 
-type PersistedAuthState = Pick<AuthState, 'user' | 'token'>
+type PersistedAuthState = Pick<AuthState, "user">;
 
 export const useAuthStore = create<AuthState>()(
   persist<AuthState, [], [], PersistedAuthState>(creator, {
-    name: 'auth',
-  storage: createJSONStorage<PersistedAuthState>(() => (typeof window !== 'undefined' ? localStorage : (undefined as unknown as Storage))),
-  skipHydration: true,
-    partialize: (state) => ({ user: state.user, token: state.token }),
-  }),
-)
-
-export const getAuthToken = () => useAuthStore.getState().token
+    name: "auth",
+    storage: createJSONStorage<PersistedAuthState>(() =>
+      typeof window !== "undefined"
+        ? localStorage
+        : (undefined as unknown as Storage)
+    ),
+      // allow automatic rehydration so persisted `user` is loaded
+      partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => () => {
+        // mark hydrated after rehydration and notify subscribers
+        try {
+          useAuthStore.setState({ hydrated: true });
+        } catch {}
+      },
+  })
+);

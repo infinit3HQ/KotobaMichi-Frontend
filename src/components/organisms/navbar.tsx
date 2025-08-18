@@ -1,18 +1,18 @@
-// src/components/organisms/navbar.tsx
-"use client"
+"use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { useAuth } from "@/hooks/use-auth";
+import { api } from "@/lib/api";
 import { toast } from "sonner";
 
 export function Navbar() {
   const router = useRouter();
-  const { user, token, logout } = useAuth();
+  const { user, logout } = useAuth();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-  <Link href="/" className="font-bold text-lg">
+        <Link href="/" className="font-bold text-lg">
           KotobaMichi
         </Link>
         <nav className="flex items-center gap-2">
@@ -25,7 +25,7 @@ export function Navbar() {
           <Button asChild variant="ghost" size="sm">
             <Link href="/words">Words</Link>
           </Button>
-          {token && user && (
+          {user && (
             <Button asChild variant="ghost" size="sm">
               <Link href="/profile">Profile</Link>
             </Button>
@@ -35,7 +35,7 @@ export function Navbar() {
               <Link href="/dashboard">Dashboard</Link>
             </Button>
           )}
-          {token && user ? (
+          {user ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">
                 {user.email}
@@ -44,10 +44,13 @@ export function Navbar() {
                 size="sm"
                 className="ml-2"
                 variant="destructive"
-                onClick={() => {
+                onClick={async () => {
+                  try {
+                    await api.post("/auth/logout");
+                  } catch {}
                   logout();
                   toast.success("Logged out");
-          router.push("/");
+                  router.push("/");
                 }}
               >
                 Logout
@@ -55,7 +58,7 @@ export function Navbar() {
             </>
           ) : (
             <Button asChild size="sm" className="ml-2">
-        <Link href="/auth/login">Login</Link>
+              <Link href="/auth/login">Login</Link>
             </Button>
           )}
         </nav>
