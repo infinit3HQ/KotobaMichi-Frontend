@@ -20,6 +20,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, getApiError } from "@/lib/api";
+import { extractRateLimitFromError } from "@/lib/rate-limit";
+import { useCountdown } from "@/hooks/use-countdown";
 import { toast } from "sonner";
 
 const schema = z.object({ email: z.string().email() });
@@ -31,6 +33,7 @@ export default function ResendVerificationPage() {
     resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
+  const { secondsLeft, reset, running } = useCountdown(null);
 
   const onSubmit = async (values: FormVals) => {
     try {
@@ -38,6 +41,14 @@ export default function ResendVerificationPage() {
       toast.success("If that email exists, we sent a new verification link.");
     } catch (e) {
       const { message } = getApiError(e);
+      const rl = extractRateLimitFromError(e);
+      if (rl) {
+        if (rl.retryAfterSeconds != null && rl.retryAfterSeconds > 0) {
+          reset(rl.retryAfterSeconds);
+        }
+        toast.error(rl.rawMessage ?? message ?? "Too many requests");
+        return;
+      }
       toast.error(message ?? "Request failed");
     }
   };
@@ -74,10 +85,19 @@ export default function ResendVerificationPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting || running}
               >
-                {form.formState.isSubmitting ? "Sending…" : "Send link"}
+                {form.formState.isSubmitting
+                  ? "Sending…"
+                  : running && secondsLeft != null
+                  ? `Try again in ${secondsLeft}s`
+                  : "Send link"}
               </Button>
+              {running && secondsLeft != null ? (
+                <p className="text-xs text-muted-foreground text-center">
+                  Rate limit active. Please wait {secondsLeft}s before retrying.
+                </p>
+              ) : null}
             </form>
           </Form>
         </CardContent>
