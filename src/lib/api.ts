@@ -8,20 +8,35 @@ declare global {
     __ENV__?: Record<string, string | undefined>;
   }
 }
-const runtimeApiUrl =
-  typeof window !== "undefined"
-    ? window.__ENV__?.NEXT_PUBLIC_API_URL
-    : undefined;
-// On the server (SSR), prefer process.env at runtime to support Docker env injection
-const serverApiUrl =
-  typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL : undefined;
-const baseURL =
-  runtimeApiUrl ??
-  serverApiUrl ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:3001/v1/";
+function resolveBaseURL() {
+  const runtimeApiUrl =
+    typeof window !== "undefined"
+      ? window.__ENV__?.NEXT_PUBLIC_API_URL
+      : undefined;
+  // On the server (SSR), prefer process.env at runtime to support Docker env injection
+  const serverApiUrl =
+    typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL : undefined;
+  const rawBase =
+    runtimeApiUrl ??
+    serverApiUrl ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    "http://localhost:3000";
+  // normalize: remove trailing slashes
+  const trimmed = rawBase.replace(/\/+$/, "");
+  // ensure we only have a single /v1 suffix regardless of env formatting
+  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+}
 
-export const api = axios.create({ baseURL, withCredentials: true });
+export const api = axios.create({ baseURL: resolveBaseURL(), withCredentials: true });
+
+// In case window.__ENV__ loads after this module, recompute baseURL per request
+api.interceptors.request.use((cfg) => {
+  const computed = resolveBaseURL();
+  if (!cfg.baseURL || cfg.baseURL !== computed) {
+    cfg.baseURL = computed;
+  }
+  return cfg;
+});
 
 type AuthHandlers = {
   onRefreshSuccess?: (user: ApiUser) => void;
