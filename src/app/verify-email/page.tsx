@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Card,
@@ -11,7 +11,7 @@ import { Button } from "@/components/atoms/button";
 import { api, getApiError } from "@/lib/api";
 import { toast } from "sonner";
 
-export default function VerifyEmailPage() {
+function VerifyEmailClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = useMemo(() => searchParams.get("token") ?? "", [searchParams]);
@@ -86,5 +86,13 @@ export default function VerifyEmailPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center">Loading…</div>}>
+      <VerifyEmailClient />
+    </Suspense>
   );
 }
