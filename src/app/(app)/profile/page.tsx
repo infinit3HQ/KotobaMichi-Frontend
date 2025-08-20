@@ -11,6 +11,13 @@ import {
   CardTitle,
 } from "@/components/atoms/card";
 import { Skeleton } from "@/components/atoms/skeleton";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/atoms/form";
+import { Input } from "@/components/atoms/input";
+import { Button } from "@/components/atoms/button";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   return (
@@ -18,6 +25,7 @@ export default function ProfilePage() {
       <div className="space-y-6">
         <ProfileCard />
         <AttemptsCard />
+  <ChangePasswordCard />
       </div>
     </ProtectedRoute>
   );
@@ -48,6 +56,95 @@ function ProfileCard() {
             </p>
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const changePwSchema = z
+  .object({
+    currentPassword: z.string().min(6),
+    newPassword: z.string().min(6),
+    confirmNewPassword: z.string().min(6),
+  })
+  .refine((v) => v.newPassword === v.confirmNewPassword, {
+    path: ["confirmNewPassword"],
+    message: "Passwords do not match",
+  });
+
+type ChangePwVals = z.infer<typeof changePwSchema>;
+
+function ChangePasswordCard() {
+  const form = useForm<ChangePwVals>({
+    resolver: zodResolver(changePwSchema),
+    defaultValues: { currentPassword: "", newPassword: "", confirmNewPassword: "" },
+  });
+
+  const onSubmit = async (values: ChangePwVals) => {
+    try {
+      await api.post("/auth/change-password", {
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      toast.success("Password changed");
+      form.reset();
+    } catch {
+      toast.error("Failed to change password");
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Change Password</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmNewPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Saving…" : "Save"}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

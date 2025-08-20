@@ -22,12 +22,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, getApiError } from "@/lib/api";
-import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setUser } = useAuth();
   const schema = z
     .object({
       email: z.string().email(),
@@ -46,16 +44,14 @@ export default function RegisterPage() {
 
   const onSubmit = async (values: FormVals) => {
     try {
-      const res = await api.post("/auth/register", {
+      await api.post("/auth/register", {
         email: values.email,
         password: values.password,
       });
-      const { user } = res.data as {
-        user: { id: string; email: string; role: "USER" | "ADMIN" };
-      };
-      setUser(user);
-      toast.success("Account created");
-      router.push("/");
+      toast.success(
+        "Account created. Please verify your email before logging in."
+      );
+      router.push("/auth/login");
     } catch (e) {
       const { message } = getApiError(e);
       toast.error(message ?? "Registration failed");
@@ -133,12 +129,20 @@ export default function RegisterPage() {
               </Button>
             </form>
           </Form>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="underline">
-              Login
-            </Link>
-          </p>
+          <div className="mt-3 text-sm text-muted-foreground">
+            <p>
+              Already have an account?{" "}
+              <Link href="/auth/login" className="underline">
+                Login
+              </Link>
+            </p>
+            <p className="mt-1">
+              Didn&apos;t get the email?{" "}
+              <Link href="/auth/resend-verification" className="underline">
+                Resend verification
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

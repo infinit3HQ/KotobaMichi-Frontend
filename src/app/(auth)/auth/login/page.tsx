@@ -49,7 +49,11 @@ export default function LoginPage() {
       router.push("/");
     } catch (e) {
       const { message } = getApiError(e);
-      toast.error(message ?? "Login failed");
+      if (message?.toLowerCase().includes("verify")) {
+        toast.error(message);
+      } else {
+        toast.error(message ?? "Login failed");
+      }
     }
   };
 
@@ -106,12 +110,26 @@ export default function LoginPage() {
               </Button>
             </form>
           </Form>
-          <p className="mt-3 text-sm text-muted-foreground">
-            No account?{" "}
-            <Link href="/auth/register" className="underline">
-              Register
-            </Link>
-          </p>
+          <div className="mt-3 flex flex-col gap-1 text-sm text-muted-foreground">
+            <p>
+              No account?{" "}
+              <Link href="/auth/register" className="underline">
+                Register
+              </Link>
+            </p>
+            <p>
+              Forgot your password? {""}
+              <Link href="/auth/forgot-password" className="underline">
+                Reset it
+              </Link>
+            </p>
+            <p>
+              Need a new verification email? {""}
+              <Link href="/auth/resend-verification" className="underline">
+                Resend
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

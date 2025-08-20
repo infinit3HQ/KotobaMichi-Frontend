@@ -1,5 +1,6 @@
 // src/lib/api.ts
 import axios, { type AxiosRequestConfig } from "axios";
+import { getRetryAfterFromHeaders } from "./rate-limit";
 import type { ApiUser } from "@/types/api";
 
 // Prefer runtime-injected env (window.__ENV__), then Next public env (process.env.*), then default
@@ -8,20 +9,38 @@ declare global {
     __ENV__?: Record<string, string | undefined>;
   }
 }
-const runtimeApiUrl =
-  typeof window !== "undefined"
-    ? window.__ENV__?.NEXT_PUBLIC_API_URL
-    : undefined;
-// On the server (SSR), prefer process.env at runtime to support Docker env injection
-const serverApiUrl =
-  typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL : undefined;
-const baseURL =
-  runtimeApiUrl ??
-  serverApiUrl ??
+function resolveBaseURL() {
+  const runtimeApiUrl =
+    typeof window !== "undefined"
+      ? window.__ENV__?.NEXT_PUBLIC_API_URL
+      : undefined;
+  // On the server (SSR), prefer process.env at runtime to support Docker env injection
+  const serverApiUrl =
+    typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL : undefined;
+  const rawBase =
+    runtimeApiUrl ??
+    serverApiUrl ??
   process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:3001/v1/";
+  "http://localhost:3001";
+  // normalize: remove trailing slashes
+  const trimmed = rawBase.replace(/\/+$/, "");
+  // ensure we only have a single /v1 suffix regardless of env formatting
+  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+}
 
-export const api = axios.create({ baseURL, withCredentials: true });
+export const api = axios.create({
+  baseURL: resolveBaseURL(),
+  withCredentials: true,
+});
+
+// In case window.__ENV__ loads after this module, recompute baseURL per request
+api.interceptors.request.use((cfg) => {
+  const computed = resolveBaseURL();
+  if (!cfg.baseURL || cfg.baseURL !== computed) {
+    cfg.baseURL = computed;
+  }
+  return cfg;
+});
 
 type AuthHandlers = {
   onRefreshSuccess?: (user: ApiUser) => void;
@@ -63,7 +82,7 @@ api.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status;
     const original = error?.config as
-      | (AxiosRequestConfig & { _retry?: boolean })
+      | (AxiosRequestConfig & { _retry?: boolean; _retry429?: boolean })
       | undefined;
     const url = (original?.url ?? "") as string;
     // If the refresh request itself failed with 401, don't try to refresh again
@@ -79,6 +98,21 @@ api.interceptors.response.use(
       } catch {
         // refreshSession() already calls authHandlers.onUnauthenticated() on failure.
         // Do not call it again here to avoid double-firing logout/toast flows.
+      }
+    }
+    // On 429, for idempotent GETs, optionally retry once after Retry-After seconds (if provided and small)
+    if (
+      status === 429 &&
+      original &&
+      original.method?.toUpperCase() === "GET" &&
+      !original._retry429
+    ) {
+      const retryAfter = getRetryAfterFromHeaders(error?.response?.headers);
+      const waitMs = retryAfter != null ? retryAfter * 1000 : null;
+      if (waitMs != null && waitMs <= 10_000) {
+        original._retry429 = true;
+        await new Promise((r) => setTimeout(r, waitMs));
+        return api.request(original);
       }
     }
     return Promise.reject(error);
