@@ -76,6 +76,7 @@ export default function RegisterPage() {
                     <FormControl>
                       <Input
                         type="email"
+                        autoComplete="email"
                         placeholder="you@example.com"
                         {...field}
                       />
@@ -93,6 +94,7 @@ export default function RegisterPage() {
                     <FormControl>
                       <Input
                         type="password"
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         {...field}
                       />
@@ -110,6 +112,7 @@ export default function RegisterPage() {
                     <FormControl>
                       <Input
                         type="password"
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         {...field}
                       />

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Card,
@@ -36,7 +36,7 @@ const schema = z
 
 type FormVals = z.infer<typeof schema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = useMemo(() => searchParams.get("token") ?? "", [searchParams]);
@@ -102,6 +102,7 @@ export default function ResetPasswordPage() {
                       <FormControl>
                         <Input
                           type="password"
+                          autoComplete="new-password"
                           placeholder="••••••••"
                           {...field}
                         />
@@ -119,6 +120,7 @@ export default function ResetPasswordPage() {
                       <FormControl>
                         <Input
                           type="password"
+                          autoComplete="new-password"
                           placeholder="••••••••"
                           {...field}
                         />
@@ -142,5 +144,13 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center">Loading…</div>}>
+      <ResetPasswordClient />
+    </Suspense>
   );
 }
