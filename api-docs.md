@@ -1,6 +1,6 @@
 # KotobaMichi Backend API Documentation
 
-**Base URL:** `http://localhost:3000/v1/`
+**Base URL:** `http://localhost:3001/v1/`
 
 ## Authentication
 
@@ -150,7 +150,7 @@ Example (curl):
 
 ```bash
 curl -X POST \
-  http://localhost:3000/v1/words/import/upload \
+  http://localhost:3001/v1/words/import/upload \
   -H "Authorization: Bearer <admin-jwt>" \
   -F "file=@vocab_n5_updated.csv;type=text/csv"
 ```
@@ -161,7 +161,7 @@ Example (fetch):
 const form = new FormData();
 form.append('file', file); // file is a File from input[type=file]
 
-const res = await fetch('http://localhost:3000/v1/words/import/upload', {
+const res = await fetch('http://localhost:3001/v1/words/import/upload', {
   method: 'POST',
   headers: { Authorization: `Bearer ${token}` },
   body: form,

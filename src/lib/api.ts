@@ -20,8 +20,8 @@ function resolveBaseURL() {
   const rawBase =
     runtimeApiUrl ??
     serverApiUrl ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    "http://localhost:3000";
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:3001";
   // normalize: remove trailing slashes
   const trimmed = rawBase.replace(/\/+$/, "");
   // ensure we only have a single /v1 suffix regardless of env formatting
