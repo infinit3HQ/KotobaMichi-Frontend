@@ -18,14 +18,15 @@ export type Pagination = {
   totalPages: number
 }
 
-// Words
 export type Word = {
   id: string
-  hiragana: string
-  katakana: string
   kanji: string | null
-  pronunciation: string
-  meaning: string
+  hiragana: string
+  romaji: string | null
+  english: string
+  pronunciationUrl: string
+  level: string | null
+  createdAt: string
 }
 
 export type WordsListResponse = {

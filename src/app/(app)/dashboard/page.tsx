@@ -132,8 +132,9 @@ function WordsManager() {
               <thead>
                 <tr className="border-b text-left">
                   <th className="p-2">Kana/Kanji</th>
-                  <th className="p-2">Meaning</th>
-                  <th className="p-2">Pronunciation</th>
+                  <th className="p-2">English</th>
+                  <th className="p-2">English</th>
+                  <th className="p-2">Audio</th>
                   <th className="p-2 w-40">Actions</th>
                 </tr>
               </thead>
@@ -142,15 +143,17 @@ function WordsManager() {
                   <tr key={w.id} className="border-b">
                     <td className="p-2">
                       <div className="font-medium">
-                        {w.hiragana || w.katakana || w.kanji}
+                        {w.hiragana || w.kanji || w.romaji}
+                        {w.hiragana || w.kanji || w.romaji}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {w.kanji}
                       </div>
                     </td>
-                    <td className="p-2">{w.meaning}</td>
+                    <td className="p-2">{w.english}</td>
+                    <td className="p-2">{w.english}</td>
                     <td className="p-2 truncate max-w-[12rem]">
-                      {w.pronunciation}
+                      {w.pronunciationUrl}
                     </td>
                     <td className="p-2">
                       <div className="flex gap-2">
@@ -219,11 +222,13 @@ function CreateWordDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Omit<Word, "id">>({
-    hiragana: "",
-    katakana: "",
     kanji: "",
-    pronunciation: "",
-    meaning: "",
+    hiragana: "",
+    romaji: "",
+    english: "",
+    pronunciationUrl: "",
+    level: "",
+    createdAt: new Date().toISOString(),
   });
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -235,31 +240,12 @@ function CreateWordDialog({
           <DialogTitle>Add Word</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3">
-          <LabeledInput
-            label="Hiragana"
-            value={form.hiragana}
-            onChange={(v) => setForm({ ...form, hiragana: v })}
-          />
-          <LabeledInput
-            label="Katakana"
-            value={form.katakana}
-            onChange={(v) => setForm({ ...form, katakana: v })}
-          />
-          <LabeledInput
-            label="Kanji"
-            value={form.kanji ?? ""}
-            onChange={(v) => setForm({ ...form, kanji: v })}
-          />
-          <LabeledInput
-            label="Pronunciation URL"
-            value={form.pronunciation}
-            onChange={(v) => setForm({ ...form, pronunciation: v })}
-          />
-          <LabeledInput
-            label="Meaning"
-            value={form.meaning}
-            onChange={(v) => setForm({ ...form, meaning: v })}
-          />
+          <LabeledInput label="Kanji" value={form.kanji ?? ""} onChange={(v) => setForm({ ...form, kanji: v })} />
+          <LabeledInput label="Hiragana" value={form.hiragana ?? ""} onChange={(v) => setForm({ ...form, hiragana: v })} />
+          <LabeledInput label="Romaji" value={form.romaji ?? ""} onChange={(v) => setForm({ ...form, romaji: v })} />
+          <LabeledInput label="English" value={form.english} onChange={(v) => setForm({ ...form, english: v })} />
+          <LabeledInput label="Pronunciation URL" value={form.pronunciationUrl ?? ""} onChange={(v) => setForm({ ...form, pronunciationUrl: v })} />
+          <LabeledInput label="Level" value={form.level ?? ""} onChange={(v) => setForm({ ...form, level: v })} />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
@@ -303,31 +289,12 @@ function EditWordDialog({
           <DialogTitle>Edit Word</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3">
-          <LabeledInput
-            label="Hiragana"
-            value={form.hiragana ?? ""}
-            onChange={(v) => setForm({ ...form, hiragana: v })}
-          />
-          <LabeledInput
-            label="Katakana"
-            value={form.katakana ?? ""}
-            onChange={(v) => setForm({ ...form, katakana: v })}
-          />
-          <LabeledInput
-            label="Kanji"
-            value={form.kanji ?? ""}
-            onChange={(v) => setForm({ ...form, kanji: v })}
-          />
-          <LabeledInput
-            label="Pronunciation URL"
-            value={form.pronunciation ?? ""}
-            onChange={(v) => setForm({ ...form, pronunciation: v })}
-          />
-          <LabeledInput
-            label="Meaning"
-            value={form.meaning ?? ""}
-            onChange={(v) => setForm({ ...form, meaning: v })}
-          />
+          <LabeledInput label="Kanji" value={form.kanji ?? ""} onChange={(v) => setForm({ ...form, kanji: v })} />
+          <LabeledInput label="Hiragana" value={form.hiragana ?? ""} onChange={(v) => setForm({ ...form, hiragana: v })} />
+          <LabeledInput label="Romaji" value={form.romaji ?? ""} onChange={(v) => setForm({ ...form, romaji: v })} />
+          <LabeledInput label="English" value={form.english ?? ""} onChange={(v) => setForm({ ...form, english: v })} />
+          <LabeledInput label="Pronunciation URL" value={form.pronunciationUrl ?? ""} onChange={(v) => setForm({ ...form, pronunciationUrl: v })} />
+          <LabeledInput label="Level" value={form.level ?? ""} onChange={(v) => setForm({ ...form, level: v })} />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
@@ -735,7 +702,7 @@ function CreateQuizDialog({ onCreated }: { onCreated: () => void }) {
                     }
                   />
                   <span>
-                    {w.hiragana || w.katakana || w.kanji} — {w.meaning}
+                    {w.hiragana || w.kanji || w.romaji} — {w.english}
                   </span>
                 </label>
               ))}

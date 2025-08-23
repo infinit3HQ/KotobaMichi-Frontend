@@ -66,12 +66,10 @@ export default function QuizResultsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="text-lg font-semibold">
-                      {item.word.hiragana ||
-                        item.word.katakana ||
-                        item.word.kanji}
+                      {item.word.hiragana || item.word.kanji || item.word.romaji}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Meaning: {item.word.meaning}
+                      English: {item.word.english}
                     </div>
                     <div className="text-sm mt-1">
                       Your answer:{" "}
