@@ -88,15 +88,16 @@ export default function QuizTakingPage() {
                   <div className="border rounded-md p-4 space-y-2">
                     <div className="text-2xl font-semibold">
                       {words[index].word.hiragana ||
-                        words[index].word.katakana ||
-                        words[index].word.kanji}
+                        words[index].word.kanji ||
+                        words[index].word.romaji}
                     </div>
-                    {words[index].word.pronunciation && (
+                    {words[index].word.pronunciationUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          new Audio(words[index].word.pronunciation)
+                          words[index].word.pronunciationUrl &&
+                          new Audio(words[index].word.pronunciationUrl)
                             .play()
                             .catch(() => {})
                         }
@@ -106,7 +107,7 @@ export default function QuizTakingPage() {
                       </Button>
                     )}
                     <div className="text-sm text-muted-foreground">
-                      Meaning?
+                      English?
                     </div>
                     <Input
                       value={answers[words[index].wordId] ?? ""}

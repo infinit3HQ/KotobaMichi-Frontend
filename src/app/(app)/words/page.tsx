@@ -97,7 +97,7 @@ function filterWords(words: Word[], q: string) {
   const s = q.trim().toLowerCase();
   if (!s) return words;
   return words.filter((w) =>
-    [w.meaning, w.hiragana, w.katakana, w.kanji ?? ""].some((v) =>
+    [w.english, w.hiragana, w.romaji, w.kanji ?? "", w.level ?? ""].some((v) =>
       v?.toLowerCase().includes(s)
     )
   );
@@ -145,11 +145,10 @@ function Flashcard({ word }: { word: Word }) {
   const playAudio = useCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!word.pronunciation || isPlaying) return;
-
+      if (!word.pronunciationUrl || isPlaying) return;
       setIsPlaying(true);
       try {
-        const audio = new Audio(word.pronunciation);
+        const audio = new Audio(word.pronunciationUrl);
         audio.onended = () => setIsPlaying(false);
         audio.onerror = () => setIsPlaying(false);
         await audio.play();
@@ -157,7 +156,7 @@ function Flashcard({ word }: { word: Word }) {
         setIsPlaying(false);
       }
     },
-    [word.pronunciation, isPlaying]
+    [word.pronunciationUrl, isPlaying]
   );
 
   return (
@@ -175,18 +174,14 @@ function Flashcard({ word }: { word: Word }) {
           <Card className="h-full border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
             <CardContent className="h-full flex flex-col justify-center items-center p-6 space-y-3">
               <div className="text-center space-y-2">
-                <div className="text-3xl font-bold text-primary">
-                  {word.hiragana || word.katakana || word.kanji}
-                </div>
+                <div className="text-3xl font-bold text-primary">{word.hiragana || word.kanji || word.romaji}</div>
                 {word.kanji && word.hiragana && (
                   <div className="text-xl text-slate-600 dark:text-slate-300">
                     {word.kanji}
                   </div>
                 )}
               </div>
-              <Badge variant="secondary" className="text-xs opacity-70">
-                Click to reveal meaning
-              </Badge>
+              <Badge variant="secondary" className="text-xs opacity-70">Click to reveal English</Badge>
             </CardContent>
           </Card>
         </div>
@@ -196,19 +191,13 @@ function Flashcard({ word }: { word: Word }) {
           <Card className="h-full border-2 border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
             <CardContent className="h-full flex flex-col justify-center items-center p-6 space-y-4">
               <div className="text-center space-y-3">
-                <div className="text-xl font-semibold text-green-800 dark:text-green-200">
-                  {word.meaning}
-                </div>
-                <div className="text-lg text-slate-700 dark:text-slate-300">
-                  {word.hiragana || word.katakana || word.kanji}
-                </div>
+                <div className="text-xl font-semibold text-green-800 dark:text-green-200">{word.english}</div>
+                <div className="text-lg text-slate-700 dark:text-slate-300">{word.hiragana || word.kanji || word.romaji}</div>
                 {word.kanji && word.hiragana && (
-                  <div className="text-sm text-slate-500 dark:text-slate-400">
-                    {word.kanji}
-                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">{word.kanji}</div>
                 )}
               </div>
-              {word.pronunciation && (
+              {word.pronunciationUrl && (
                 <Button
                   variant="outline"
                   size="sm"

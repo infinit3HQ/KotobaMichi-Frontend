@@ -115,7 +115,7 @@ export default function QuizCreationPage() {
                         onCheckedChange={() => toggle(w.id)}
                       />
                       <span className="text-sm">
-                        {w.hiragana || w.katakana || w.kanji} — {w.meaning}
+                        {w.hiragana || w.kanji || w.romaji} — {w.english}
                       </span>
                     </label>
                   ))}
