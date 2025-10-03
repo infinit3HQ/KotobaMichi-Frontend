@@ -9,9 +9,15 @@ import { Card, CardContent } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, Search } from "lucide-react";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/atoms/toggle-group";
+import { Label } from "@/components/atoms/label";
 
 export default function Home() {
   const [search, setSearch] = useState("");
+  const [gridColumns, setGridColumns] = useState("auto");
   const limit = 1000;
 
   const {
@@ -62,7 +68,7 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto p-4 space-y-4">
         {/* Search Section */}
         <Card className="shadow-lg border-0 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -79,6 +85,43 @@ export default function Home() {
                 </Badge>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="columns-toggle"
+                className="text-sm text-muted-foreground"
+              >
+                View:
+              </Label>
+              <ToggleGroup
+                id="columns-toggle"
+                type="single"
+                size="sm"
+                value={gridColumns}
+                onValueChange={(value) => {
+                  if (value) setGridColumns(value);
+                }}
+                defaultValue="auto"
+              >
+                <ToggleGroupItem value="auto" aria-label="Auto columns">
+                  Auto
+                </ToggleGroupItem>
+                <ToggleGroupItem value="1" aria-label="1 column">
+                  1
+                </ToggleGroupItem>
+                <ToggleGroupItem value="2" aria-label="2 columns">
+                  2
+                </ToggleGroupItem>
+                <ToggleGroupItem value="3" aria-label="3 columns">
+                  3
+                </ToggleGroupItem>
+                <ToggleGroupItem value="4" aria-label="4 columns">
+                  4
+                </ToggleGroupItem>
+                <ToggleGroupItem value="5" aria-label="5 columns">
+                  5
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
           </CardContent>
         </Card>
 
@@ -87,6 +130,7 @@ export default function Home() {
           items={filtered}
           onLoadMore={loadMore}
           isLoading={isFetchingNextPage}
+          columns={gridColumns === "auto" ? undefined : parseInt(gridColumns)}
         />
       </div>
     </div>
@@ -227,10 +271,12 @@ function VirtualizedGrid({
   items,
   onLoadMore,
   isLoading,
+  columns: forceColumns,
 }: {
   items: Word[];
   onLoadMore: () => void;
   isLoading?: boolean;
+  columns?: number;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [parentWidth, setParentWidth] = useState(0);
@@ -244,7 +290,7 @@ function VirtualizedGrid({
     return 5; // 2xl+
   }, []);
 
-  const columns = getColumns(parentWidth);
+  const columns = forceColumns ?? getColumns(parentWidth);
   const itemHeight = 200; // Height of each card including gap
   const gap = 16;
 
