@@ -8,7 +8,10 @@ import { Button } from "@/components/atoms/button";
 import { Card, CardContent } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Volume2, Search } from "lucide-react";
+import { Volume2, Search, Zap } from "lucide-react";
+import Link from "next/link";
+import { speakJapanese } from "@/lib/audio";
+import { JLPT_N5_WORDS } from "@/data/vocab-n5";
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -23,7 +26,6 @@ export default function Home() {
   const {
     data,
     isLoading,
-    isError,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -40,12 +42,28 @@ export default function Home() {
       return page < totalPages ? page + 1 : undefined;
     },
     initialPageParam: 1,
+    retry: 1,
   });
 
-  const words = useMemo(
-    () => (data?.pages ?? []).flatMap((p) => p.words),
-    [data?.pages]
-  );
+  const fallbackWords: Word[] = useMemo(() => {
+    return JLPT_N5_WORDS.map((w) => ({
+      id: w.id,
+      kanji: w.kanji,
+      hiragana: w.hiragana,
+      romaji: w.romaji,
+      english: w.english,
+      level: w.level,
+      pronunciationUrl: "",
+      createdAt: new Date().toISOString(),
+    }));
+  }, []);
+
+  const words = useMemo(() => {
+    const fetched = (data?.pages ?? []).flatMap((p) => p.words);
+    if (fetched.length > 0) return fetched;
+    return fallbackWords;
+  }, [data?.pages, fallbackWords]);
+
   const filtered = useMemo(() => filterWords(words, search), [words, search]);
 
   // Load more when approaching the end
@@ -55,12 +73,8 @@ export default function Home() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isLoading) {
+  if (isLoading && words.length === 0) {
     return <LoadingState />;
-  }
-
-  if (isError) {
-    return <ErrorState />;
   }
 
   return (
@@ -79,10 +93,16 @@ export default function Home() {
                   className="pl-10 h-12 text-lg border-2 focus:border-primary/50 transition-colors"
                 />
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Badge variant="outline" className="px-3 py-1">
-                  {filtered.length} results
+                  {filtered.length} words
                 </Badge>
+                <Button asChild size="sm" className="gap-1.5 bg-primary/90 hover:bg-primary">
+                  <Link href="/practice">
+                    <Zap className="h-4 w-4 fill-current text-amber-400" />
+                    Practice Dojo
+                  </Link>
+                </Button>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -158,30 +178,6 @@ function LoadingState() {
   );
 }
 
-function ErrorState() {
-  return (
-    <div className="h-[calc(100vh-400px)] flex items-center justify-center">
-      <Card className="max-w-md">
-        <CardContent className="p-6 text-center space-y-4">
-          <div className="text-destructive text-4xl">😞</div>
-          <h2 className="text-xl font-semibold">Failed to load words</h2>
-          <p className="text-muted-foreground">
-            There was an error loading the vocabulary. Please try refreshing the
-            page.
-          </p>
-          <Button
-            onClick={() => {
-              if (typeof window !== "undefined") window.location.reload()
-            }}
-          >
-            Try Again
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 function Flashcard({ word }: { word: Word }) {
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -189,18 +185,16 @@ function Flashcard({ word }: { word: Word }) {
   const playAudio = useCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!word.pronunciationUrl || isPlaying) return;
+      if (isPlaying) return;
       setIsPlaying(true);
-      try {
-        const audio = new Audio(word.pronunciationUrl);
-        audio.onended = () => setIsPlaying(false);
-        audio.onerror = () => setIsPlaying(false);
-        await audio.play();
-      } catch {
-        setIsPlaying(false);
-      }
+      await speakJapanese(word.kanji || word.hiragana, {
+        onStart: () => setIsPlaying(true),
+        onEnd: () => setIsPlaying(false),
+        onError: () => setIsPlaying(false),
+      });
+      setIsPlaying(false);
     },
-    [word.pronunciationUrl, isPlaying]
+    [word.kanji, word.hiragana, isPlaying]
   );
 
   return (
@@ -241,23 +235,21 @@ function Flashcard({ word }: { word: Word }) {
                   <div className="text-sm text-slate-500 dark:text-slate-400">{word.kanji}</div>
                 )}
               </div>
-              {word.pronunciationUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 bg-white/50 hover:bg-white/80 border-green-300"
-                  onClick={playAudio}
-                  disabled={isPlaying}
-                  aria-label="Play pronunciation"
-                >
-                  <Volume2
-                    className={`h-4 w-4 mr-2 ${
-                      isPlaying ? "animate-pulse" : ""
-                    }`}
-                  />
-                  {isPlaying ? "Playing..." : "Listen"}
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 bg-white/50 hover:bg-white/80 border-green-300"
+                onClick={playAudio}
+                disabled={isPlaying}
+                aria-label="Play pronunciation"
+              >
+                <Volume2
+                  className={`h-4 w-4 mr-2 ${
+                    isPlaying ? "animate-pulse" : ""
+                  }`}
+                />
+                {isPlaying ? "Playing..." : "Listen"}
+              </Button>
             </CardContent>
           </Card>
         </div>
