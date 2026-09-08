@@ -5,6 +5,7 @@ import { Button } from "@/components/atoms/button";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { Zap } from "lucide-react";
 
 export function Navbar() {
   const router = useRouter();
@@ -18,6 +19,12 @@ export function Navbar() {
         <nav className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link href="/">Home</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="gap-1 font-semibold text-primary">
+            <Link href="/practice">
+              <Zap className="h-3.5 w-3.5 fill-current text-amber-500" />
+              Practice Dojo
+            </Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
             <Link href="/quizzes">Quizzes</Link>

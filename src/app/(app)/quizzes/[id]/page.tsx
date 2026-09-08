@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import { ProtectedRoute } from "@/components/organisms/protected-route";
 import { useResultsStore } from "@/stores/results";
 import { toast } from "sonner";
+import { speakJapanese } from "@/lib/audio";
 
 export default function QuizTakingPage() {
   const params = useParams();
@@ -91,21 +92,17 @@ export default function QuizTakingPage() {
                         words[index].word.kanji ||
                         words[index].word.romaji}
                     </div>
-                    {words[index].word.pronunciationUrl && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          words[index].word.pronunciationUrl &&
-                          new Audio(words[index].word.pronunciationUrl)
-                            .play()
-                            .catch(() => {})
-                        }
-                        aria-label="Play pronunciation"
-                      >
-                        <Volume2 className="h-4 w-4 mr-2" /> Play
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const w = words[index].word;
+                        speakJapanese(w.kanji || w.hiragana || w.romaji || "");
+                      }}
+                      aria-label="Play pronunciation"
+                    >
+                      <Volume2 className="h-4 w-4 mr-2" /> Listen
+                    </Button>
                     <div className="text-sm text-muted-foreground">
                       English?
                     </div>

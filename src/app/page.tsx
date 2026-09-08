@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
-import { BookOpen, Sparkles, Search, Trophy, ArrowRight } from "lucide-react";
+import { Sparkles, Search, Trophy, ArrowRight, Zap, Headphones } from "lucide-react";
 
 export default function Home() {
 	return (
@@ -16,20 +16,20 @@ export default function Home() {
 				<div className="container mx-auto px-4 py-16 md:py-24 text-center">
 					<Badge variant="secondary" className="mb-4 inline-flex items-center gap-2">
 						<Sparkles className="h-4 w-4" />
-						Learn Japanese Faster
+						Learn Japanese Really Fast
 					</Badge>
 					<h1 className="mx-auto max-w-3xl text-balance text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-						Master JLPT Vocabulary the Smart Way
+						Master JLPT Vocabulary with Interactive Speed Drills
 					</h1>
 					<p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
-						KotobaMichi helps you build strong Japanese vocab with smart quizzes, clean word lists, and gentle progress tracking.
+						KotobaMichi helps you build fluent Japanese intuition fast with our high-speed Practice Dojo, native speech audio synthesis, kana soundboard, and 3D SRS flashcards.
 					</p>
 
 					<div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-						<Button asChild size="lg" className="gap-2">
-							<Link href="/auth/register">
-								Get started
-								<ArrowRight className="h-4 w-4" />
+						<Button asChild size="lg" className="gap-2 bg-gradient-to-r from-amber-500 to-primary hover:opacity-90 shadow-md">
+							<Link href="/practice">
+								<Zap className="h-5 w-5 fill-current" />
+								Enter Practice Dojo
 							</Link>
 						</Button>
 						<Button asChild variant="outline" size="lg">
@@ -40,32 +40,38 @@ export default function Home() {
 					{/* Quick links */}
 					<div className="mt-6 text-sm text-muted-foreground">
 						Prefer a challenge? {" "}
-						<Link href="/quizzes" className="font-medium text-primary underline-offset-4 hover:underline">
-							Jump into a quiz
+						<Link href="/practice" className="font-medium text-primary underline-offset-4 hover:underline">
+							Jump into a 60s Speed Sprint
 						</Link>
 					</div>
 				</div>
 			</section>
 
 			{/* Feature grid */}
-			<section className="container mx-auto grid grid-cols-1 gap-4 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
+			<section className="container mx-auto grid grid-cols-1 gap-4 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
 				<FeatureCard
-					icon={<Search className="h-5 w-5" />}
+					icon={<Zap className="h-5 w-5 text-amber-500" />}
+					title="Speed Sprint Dojo"
+					desc="60-second rapid fire drills with streak multipliers and instant keyboard feedback."
+					cta={{ label: "Start sprinting", to: "/practice" }}
+				/>
+				<FeatureCard
+					icon={<Headphones className="h-5 w-5 text-sky-500" />}
+					title="Listening Ear-Trainer"
+					desc="Native Japanese speech synthesis to develop natural listening comprehension."
+					cta={{ label: "Train ear", to: "/practice" }}
+				/>
+				<FeatureCard
+					icon={<Search className="h-5 w-5 text-emerald-500" />}
 					title="Clean word explorer"
-					desc="Browse JLPT words by reading and meaning. Fast search built-in."
+					desc="Browse 560+ JLPT words with audio pronunciation, readings, and topics."
 					cta={{ label: "Explore words", to: "/words" }}
 				/>
 				<FeatureCard
-					icon={<BookOpen className="h-5 w-5" />}
-					title="Smart quizzes"
-					desc="Practice with focused quizzes that reinforce what you know."
+					icon={<Trophy className="h-5 w-5 text-purple-500" />}
+					title="Smart quizzes & SRS"
+					desc="Focused spaced repetition quizzes that lock vocabulary into long-term memory."
 					cta={{ label: "Try a quiz", to: "/quizzes" }}
-				/>
-				<FeatureCard
-					icon={<Trophy className="h-5 w-5" />}
-					title="Gentle progress"
-					desc="Track attempts and keep improving at your own pace."
-					cta={{ label: "View profile", to: "/profile" }}
 				/>
 			</section>
 
